@@ -1,0 +1,13 @@
+services:
+  web:
+    image: thesmile:latest
+    restart: always
+    ports:
+      - "8080:5000"
+#    build:
+#      context: .
+#      dockerfile: src/main/docker/Dockerfile.jvm
+#    volumes:
+#      - .:/code
+#  redis:
+#    image: th
