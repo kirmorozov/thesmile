@@ -72,6 +72,41 @@ class SmileDetector:
 
         return predicted.item() > 0
 
+    def smileCheckForFaces(self, image_bytes: bytes, faces):
+        res = []
+        zoomFactor = 1.1
+
+        image_io = BytesIO(image_bytes)
+        image = Image.open(image_io)
+
+        for face in faces:
+            ymin, xmin, ymax, xmax = face
+            distance = int(max(ymax-ymin,xmax-xmin) * zoomFactor /2)
+            centerY = int((ymin+ymax) /2)
+            centerX = int((xmin+xmax) /2)
+
+            posYmin = centerY - distance
+            posXmin = centerX - distance
+            posYmax = centerY + distance
+            posXmax = centerX + distance
+
+            cropedFace = image.crop((posXmin,posYmin,posXmax,posYmax))
+
+            # cropedFace.save("cropped_face.png")
+            # run the model
+            tensor = self.smileTransform(cropedFace)
+            tensor = tensor.to(self.device)
+
+            # forward pass trough the model
+            with torch.no_grad():
+                outputs = self.smileModel(tensor)
+
+            # Get the class prediction
+            _, predicted = torch.max(outputs.data, 1)
+
+            res.append(predicted.item() > 0)
+        return res
+
     def findFaces(self, image_bytes: bytes):
         image_io = BytesIO(image_bytes)
         image = Image.open(image_io)

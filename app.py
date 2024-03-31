@@ -35,9 +35,9 @@ def has_smile_json():
     with urlopen(json_data['image']) as response:
         image_data = response.read()
     foundFaces = smile_detector.findFaces(image_data)
-    res = smile_detector.smileCheck(image_data)
+    smiles = smile_detector.smileCheckForFaces(image_data,foundFaces)
 
-    return {'smiling': res, 'faces': foundFaces}
+    return {'smiling': smiles, 'faces': foundFaces}
 
 if __name__ == '__main__':
     app.run()

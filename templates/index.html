@@ -5,11 +5,16 @@
     <title>Display Webcam Stream</title>
 
     <style>
+
         #container {
             margin: 0px auto;
             width: 640px;
             height: 480px;
             border: 10px #333 solid;
+        }
+
+        .smiling {
+            border: 10px green solid !important;
         }
         #webcam {
             width: 640px;
@@ -46,7 +51,7 @@
 <div id="controls">
     <button id="btnStart">Start</button>
     <button id="btnStop">Stop</button>
-    <button id="btnRun">Capture & Check</button>
+{#    <button id="btnRun">Capture & Check</button>#}
     <br/>
     <div>
         Upon capture this application looks for faces on the image.<br/>
@@ -62,6 +67,7 @@
 
 <script type="text/javascript" src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
 <script>
+    const containerElement = document.getElementById('container');
     const webcamElement = document.getElementById('webcam');
     const canvasElement = document.getElementById('canvas');
     const webcam = new Webcam(webcamElement, 'user', canvasElement, null)
@@ -73,21 +79,8 @@
 
     const faceBox = document.getElementById('faceBox');
 
-    btnStart.addEventListener("click", (event) => {
-        webcam.start()
-            .then(result =>{
-                console.log("webcam started");
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    });
 
-    btnStop.addEventListener("click", (event) => {
-        webcam.stop();
-    });
-
-    btnRun.addEventListener("click", (event) => {
+    const checkSmile = (event) => {
         var picture = webcam.snap();
         // console.log(picture);
 
@@ -110,11 +103,35 @@
             var w = jsonRes.faces[0][3] - jsonRes.faces[0][1];
             faceBox.style.height = Math.round(h) +'px';
             faceBox.style.width  = Math.round(w) +'px';
+            if (jsonRes.smiling[0]) {
+                containerElement.classList.add('smiling');
+            } else {
+                containerElement.classList.remove('smiling');
+            }
 
-            log.innerHTML = JSON.stringify(jsonRes) + "\r\n" + log.innerHTML;
-            console.log(jsonRes);
+            log.innerHTML = JSON.stringify(jsonRes) ;
         });
+    };
+
+    var intevalHolder = {};
+    btnStart.addEventListener("click", (event) => {
+        webcam.start()
+            .then(result =>{
+                console.log("webcam started");
+                intevalHolder = setInterval(checkSmile, 500);
+            })
+            .catch(err => {
+                console.log(err);
+            });
     });
+
+    btnStop.addEventListener("click", (event) => {
+        clearInterval(intevalHolder);
+        webcam.stop();
+
+    });
+
+    btnRun.addEventListener("click", checkSmile);
 </script>
 </body>
 </html>
