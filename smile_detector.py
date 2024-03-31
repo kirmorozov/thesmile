@@ -1,6 +1,7 @@
 import torch
 from PIL import Image
 from model.lennon import LeNNon
+from model.blazeface.blazeface import BlazeFace
 from torchvision import transforms
 from io import BytesIO
 
@@ -9,16 +10,29 @@ import __main__
 __main__.LeNNon=LeNNon
 
 
+
 class SmileDetector:
-    def __init__(self):
 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    def initFaceDetectionModel(self):
+        modelDir = "model/blazeface/"
+        front_net = BlazeFace().to(self.device)
+        front_net.load_weights(modelDir + "blazeface.pth")
+        front_net.load_anchors(modelDir + "anchors.npy")
+        back_net = BlazeFace(back_model=True).to(self.device)
+        back_net.load_weights(modelDir + "blazefaceback.pth")
+        back_net.load_anchors(modelDir + "anchorsback.npy")
 
+        # Optionally change the thresholds:
+        front_net.min_score_thresh = 0.75
+        front_net.min_suppression_threshold = 0.3
+
+        self.faceDetectionModel = front_net
+    def initSmileModel(self):
         # Load the model an pass it to the proper device
         modelPath = 'model/LeNNon-Smile-Detector.pt'
-        model = torch.load(modelPath)
-        model = model.to(device)
-        model.eval()
+        smileModel = torch.load(modelPath)
+        smileModel = smileModel.to(self.device)
+        smileModel.eval()
 
         # This `transform` object will transform our test images into proper tensors
         transform = transforms.Compose([
@@ -26,23 +40,37 @@ class SmileDetector:
             transforms.ToTensor(),
         ])
 
+        self.smileModel = smileModel
+        self.smileTransform = transform
+
+    def __init__(self):
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
         self.device = device
-        self.model = model
-        self.transform = transform
+        self.initSmileModel()
+        self.initFaceDetectionModel()
 
     def smileCheck(self, image_bytes: bytes):
         # Open and preprocess he image
         image_io = BytesIO(image_bytes)
         image = Image.open(image_io)
-        tensor = self.transform(image)
+        width, height = image.size   # Get dimensions
+        imageCrop = transforms.CenterCrop((min(width,height),min(width,height)))
+
+        tensor = self.smileTransform(imageCrop(image))
         tensor = tensor.to(self.device)
 
         # forward pass trough the model
         with torch.no_grad():
 
-            outputs = self.model(tensor)
+            outputs = self.smileModel(tensor)
 
         # Get the class prediction
         _, predicted = torch.max(outputs.data, 1)
 
         return predicted.item() > 0
+
+    def findFaces(self, image_bytes: bytes):
+        # res = self.faceDetectionModel.predict_on_image()
+        pass

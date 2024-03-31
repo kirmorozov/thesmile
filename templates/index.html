@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Display Webcam Stream</title>
+
+    <style>
+        #container {
+            margin: 0px auto;
+            width: 640px;
+            height: 480px;
+            border: 10px #333 solid;
+        }
+        #webcam {
+            width: 640px;
+            height: 480px;
+            background-color: #666;
+        }
+        #controls {
+            margin: 0px auto;
+            width: 640px;
+            text-align: center;
+        }
+        .d-none {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div id="container">
+    <video id="webcam" autoplay playsinline width="640" height="480"></video>
+    <canvas id="canvas" class="d-none"></canvas>
+</div>
+<div id="controls">
+    <button id="btnStart">Start</button>
+    <button id="btnStop">Stop</button>
+    <button id="btnRun">Capture & Check</button>
+</div>
+<div id="log">
+
+</div>
+
+
+<script type="text/javascript" src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
+<script>
+    const webcamElement = document.getElementById('webcam');
+    const canvasElement = document.getElementById('canvas');
+    const webcam = new Webcam(webcamElement, 'user', canvasElement, null)
+
+    const btnStart = document.getElementById('btnStart');
+    const btnStop  = document.getElementById('btnStop');
+    const btnRun   = document.getElementById('btnRun');
+    btnStart.addEventListener("click", (event) => {
+        webcam.start()
+            .then(result =>{
+                console.log("webcam started");
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    });
+
+    btnStop.addEventListener("click", (event) => {
+        webcam.stop();
+    });
+
+    btnRun.addEventListener("click", (event) => {
+        var picture = webcam.snap();
+        // console.log(picture);
+
+        var pictureJpeg = canvasElement.toDataURL('image/jpeg');
+        const rawResponse = fetch('/has_smile_json', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({image: pictureJpeg})
+        }).then((resp) => {
+            return resp.json();
+        }).then((jsonRes) => {
+            console.log(jsonRes);
+        });
+    });
+</script>
+</body>
+</html>
