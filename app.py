@@ -17,17 +17,7 @@ def has_smile():
 
     if res:
         return "ok"
-    return { 'smiling': res}
-
-
-@app.route("/find_faces",  methods = ['POST'])
-def find_faces():
-    image_data = request.get_data()
-    res = smile_detector.smileCheck(image_data)
-
-    if res:
-        return "ok"
-    return "ko"
+    return {'smiling': res}
 
 @app.route("/has_smile_json",  methods = ['POST'])
 def has_smile_json():
