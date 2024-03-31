@@ -26,7 +26,8 @@ class SmileDetector:
         front_net.min_score_thresh = 0.75
         front_net.min_suppression_threshold = 0.3
 
-        self.faceDetectionModel = front_net
+        self.faceDetectionForwardModel = front_net
+        self.faceDetectionBackModel = back_net
     def initSmileModel(self):
         # Load the model an pass it to the proper device
         modelPath = 'model/LeNNon-Smile-Detector.pt'
@@ -72,5 +73,25 @@ class SmileDetector:
         return predicted.item() > 0
 
     def findFaces(self, image_bytes: bytes):
-        # res = self.faceDetectionModel.predict_on_image()
-        pass
+        image_io = BytesIO(image_bytes)
+        image = Image.open(image_io)
+        width, height = image.size   # Get dimensions
+        baseDim = min(width,height)
+        transform = transforms.Compose([
+            transforms.CenterCrop((min(width,height),min(width,height))),
+            transforms.Resize((256, 256)),
+            transforms.ToTensor(),
+            lambda x: x*255 # to be compatible with the model
+        ])
+
+        detections = self.faceDetectionBackModel.predict_on_image(transform(image))
+        res = []
+        for i in range(detections.shape[0]):
+            faceMarkers = detections[i]
+
+            ymin = faceMarkers[0].item() * baseDim # + (width - height)/2
+            xmin = faceMarkers[1].item() * baseDim + (width - height)/2
+            ymax = faceMarkers[2].item() * baseDim # + (width - height)/2
+            xmax = faceMarkers[3].item() * baseDim + (width - height)/2
+            res.append((ymin,xmin,ymax,xmax))
+        return res

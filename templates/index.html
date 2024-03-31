@@ -24,11 +24,22 @@
         .d-none {
             display: none;
         }
+
+        #faceBox {
+            width: 100px;
+            height: 100px;
+            border: green 3px solid;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
     </style>
 </head>
 
 <body>
 <div id="container">
+    <div id="faceBox"></div>
     <video id="webcam" autoplay playsinline width="640" height="480"></video>
     <canvas id="canvas" class="d-none"></canvas>
 </div>
@@ -36,10 +47,17 @@
     <button id="btnStart">Start</button>
     <button id="btnStop">Stop</button>
     <button id="btnRun">Capture & Check</button>
-</div>
-<div id="log">
+    <br/>
+    <div>
+        Upon capture this application looks for faces on the image.<br/>
+        Once face is found, checks if there is a smile on the face.<br/>
+        Utilizes Face detection model and a model to confirm a smile.
+    </div>
+    <pre id="log">
 
+    </pre>
 </div>
+
 
 
 <script type="text/javascript" src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
@@ -51,6 +69,10 @@
     const btnStart = document.getElementById('btnStart');
     const btnStop  = document.getElementById('btnStop');
     const btnRun   = document.getElementById('btnRun');
+    const log = document.getElementById('log');
+
+    const faceBox = document.getElementById('faceBox');
+
     btnStart.addEventListener("click", (event) => {
         webcam.start()
             .then(result =>{
@@ -80,6 +102,16 @@
         }).then((resp) => {
             return resp.json();
         }).then((jsonRes) => {
+            var rect = webcamElement.getBoundingClientRect();
+
+            faceBox.style.top = (rect.top + jsonRes.faces[0][0]) +'px';
+            faceBox.style.left = (rect.left + jsonRes.faces[0][1]) +'px';
+            var h = jsonRes.faces[0][2] - jsonRes.faces[0][0];
+            var w = jsonRes.faces[0][3] - jsonRes.faces[0][1];
+            faceBox.style.height = Math.round(h) +'px';
+            faceBox.style.width  = Math.round(w) +'px';
+
+            log.innerHTML = JSON.stringify(jsonRes) + "\r\n" + log.innerHTML;
             console.log(jsonRes);
         });
     });
