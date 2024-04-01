@@ -19,6 +19,12 @@ jobs:
         registry: registry.digitalocean.com
         username: ${{ secrets.DIGITALOCEAN_USERNAME }}
         password: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
     - uses: actions/checkout@v3
 
     - name: Download BlazeFace
@@ -36,7 +42,21 @@ jobs:
     - name: Tag for DO
       run: docker image tag thesmile:latest registry.digitalocean.com/thesmile/thesmile:latest
 
+    - name: Tag sha for DO
+      run: docker image tag thesmile:latest registry.digitalocean.com/thesmile/thesmile:$(echo $GITHUB_SHA | head -c7)
+
     - name: Push to DO
       run: docker push registry.digitalocean.com/thesmile/thesmile:latest
+
+    - name: Push sha to DO
+      run: docker push registry.digitalocean.com/thesmile/thesmile:$(echo $GITHUB_SHA | head -c7)
+
+    - name: Update deployment file
+      run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|registry.digitalocean.com/thesmile/thesmile:'${TAG}'|' $GITHUB_WORKSPACE/build/k8s/deployment.yml
+
+    - name: Save DigitalOcean kubeconfig with short-lived credentials
+      run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 smile-k8s-1-29-1-do-0-nyc3-1711943773962
+
+
 
 
