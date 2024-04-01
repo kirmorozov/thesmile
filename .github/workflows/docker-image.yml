@@ -14,5 +14,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Download BlazeFace
+      uses: actions/checkout@v3
+      with:
+        repository: 'hollance/BlazeFace-PyTorch'
+        path: 'model/bazeface'
+        
     - name: Build the Docker image
       run: docker build . --file build/Dockerfile --tag the-smile:$(date +%Y%m%d-%s)
