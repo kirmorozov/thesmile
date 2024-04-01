@@ -24,5 +24,15 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file build/Dockerfile --tag the-smile:$(date +%Y%m%d-%s)  --tag the-smile:latest
 
-    - name: Check BlazeFace
-      run: ls -la model/blazeface
+    - name: Tar the image
+      run: docker save the-smile:latest | gzip > smile_latest.tar.gz
+
+    - name: copy file via ssh key
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        port: 22
+        key: ${{ secrets.SSH_KEY }}
+        source: "smile_latest.tar.gz"
+        target: /srv/smile/smile_latest.tar.gz
