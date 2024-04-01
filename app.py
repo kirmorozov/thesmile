@@ -30,4 +30,4 @@ def has_smile_json():
     return {'smiling': smiles, 'faces': foundFaces}
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    app.run(host='0.0.0.0')
