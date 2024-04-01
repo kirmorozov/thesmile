@@ -38,7 +38,7 @@ jobs:
       run: docker pull registry.digitalocean.com/thesmile/thesmile-base:latest
 
     - name: Tag for local use
-      run: docker image tag registry.digitalocean.com/thesmile/thesmile-base:latest thesmile:latest
+      run: docker image tag registry.digitalocean.com/thesmile/thesmile-base:latest thesmile-base:latest
         
     - name: Build the Docker image
       run: docker build . --file build/Dockerfile --tag thesmile:$(date +%Y%m%d-%s) --tag thesmile:latest
