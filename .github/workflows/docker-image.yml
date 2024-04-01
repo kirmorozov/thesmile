@@ -2,8 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
+    paths-ignore:
+      - build/base.Dockerfile
+      - .github/workflows/base-docker-image.yml
     branches: [ "main" ]
 
 jobs:
@@ -34,7 +35,10 @@ jobs:
         path: 'model/blazeface'
 
     - name: Pull latest from DO
-      run: docker pull registry.digitalocean.com/thesmile/thesmile:latest
+      run: docker pull registry.digitalocean.com/thesmile/thesmile-base:latest
+
+    - name: Tag for local use
+      run: docker image tag registry.digitalocean.com/thesmile/thesmile-base:latest thesmile:latest
         
     - name: Build the Docker image
       run: docker build . --file build/Dockerfile --tag thesmile:$(date +%Y%m%d-%s) --tag thesmile:latest
