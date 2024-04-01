@@ -2,8 +2,9 @@ name: Base Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
+    paths:
+      - build/base.Dockerfile
+      - .github/workflows/base-docker-image.yml
     branches: [ "main" ]
 
 jobs:
