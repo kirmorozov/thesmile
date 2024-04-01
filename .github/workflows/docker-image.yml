@@ -22,4 +22,7 @@ jobs:
         path: 'model/bazeface'
         
     - name: Build the Docker image
-      run: docker build . --file build/Dockerfile --tag the-smile:$(date +%Y%m%d-%s)
+      run: docker build . --file build/Dockerfile --tag the-smile:$(date +%Y%m%d-%s)  --tag the-smile:latest
+
+    - name: Check BlazeFace
+      run: ls -la model/blazeface
