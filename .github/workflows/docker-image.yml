@@ -26,6 +26,9 @@ jobs:
       with:
         repository: 'hollance/BlazeFace-PyTorch'
         path: 'model/blazeface'
+
+    - name: Pull latest from DO
+      run: docker pull registry.digitalocean.com/thesmile/thesmile:latest
         
     - name: Build the Docker image
       run: docker build . --file build/Dockerfile --tag thesmile:$(date +%Y%m%d-%s) --tag thesmile:latest
