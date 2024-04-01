@@ -57,6 +57,15 @@ jobs:
     - name: Save DigitalOcean kubeconfig with short-lived credentials
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 smile-k8s-1-29-1-do-0-nyc3-1711943773962
 
+    - name: Set namespace
+      run: kubectl config set-context --current --namespace thesmile
+
+    - name: Deploy to DigitalOcean Kubernetes
+      run: kubectl apply -f $GITHUB_WORKSPACE/build/k8s/deployment.yml
+
+    - name: Verify deployment
+      run: kubectl rollout status deployment/thesmile
+
 
 
 
