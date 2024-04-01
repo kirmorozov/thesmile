@@ -24,8 +24,8 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file build/Dockerfile --tag the-smile:$(date +%Y%m%d-%s)  --tag the-smile:latest
 
-    - name: Tar the image
-      run: docker save the-smile:latest | gzip > smile_latest.tar.gz
+    # - name: Tar the image
+    #   run: docker save the-smile:latest | gzip > smile_latest.tar.gz
 
     - name: copy image to server
       run: ssh -i <(echo $key) $user@$host ls -la
