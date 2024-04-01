@@ -52,7 +52,7 @@ jobs:
       run: docker push registry.digitalocean.com/thesmile/thesmile:$(echo $GITHUB_SHA | head -c7)
 
     - name: Update deployment file
-      run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|registry.digitalocean.com/thesmile/thesmile:'${TAG}'|' $GITHUB_WORKSPACE/build/k8s/deployment.yml
+      run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|registry.digitalocean.com/thesmile/thesmile:'${TAG}'|' $GITHUB_WORKSPACE/build/k8s/deployment.yaml
 
     - name: Save DigitalOcean kubeconfig with short-lived credentials
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 smile-k8s-1-29-1-do-0-nyc3-1711943773962
@@ -61,7 +61,7 @@ jobs:
       run: kubectl config set-context --current --namespace thesmile
 
     - name: Deploy to DigitalOcean Kubernetes
-      run: kubectl apply -f $GITHUB_WORKSPACE/build/k8s/deployment.yml
+      run: kubectl apply -f $GITHUB_WORKSPACE/build/k8s/deployment.yaml
 
     - name: Verify deployment
       run: kubectl rollout status deployment/thesmile
