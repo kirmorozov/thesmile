@@ -1,0 +1,25 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: thesmile-https-with-cert
+  annotations:
+    kubernetes.digitalocean.com/load-balancer-id: "thesmile-lb"
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
+    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "77597758-09a0-45d5-b269-9f654b356375"
+    service.beta.kubernetes.io/do-loadbalancer-disable-lets-encrypt-dns-records: "false"
+    service.beta.kubernetes.io/do-loadbalancer-redirect-http-to-https: "true"
+    service.beta.kubernetes.io/do-loadbalancer-enable-backend-keepalive: "true"
+spec:
+  type: LoadBalancer
+  selector:
+    app: thesmile
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 5000
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 5000

@@ -26,6 +26,9 @@ spec:
         - image: <IMAGE>
           imagePullPolicy: Always
           name: thesmile
+          resources:
+            requests:
+              cpu: 100m
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
